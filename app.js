@@ -12,8 +12,7 @@ import {
     deleteDoc,
     doc,
     setDoc,
-    getDoc,
-    where
+    getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Data Management
@@ -149,15 +148,14 @@ async function saveTransactionCloud() {
         amount: amount,
         category: category,
         date: formattedDate,
-        createdAt: new Date(),
-        userId: userUID // Store UID for personal data filtering
+        createdAt: new Date()
     };
 
-    console.log("Saving to Firestore path: expenses");
+    console.log("Saving to Firestore path:", `users/${userUID}/transactions`);
     console.log("Data:", newExpense);
 
     try {
-        const docRef = await addDoc(collection(db, 'expenses'), newExpense);
+        const docRef = await addDoc(collection(db, 'users', userUID, 'transactions'), newExpense);
         console.log("SUCCESS: Transaction saved with ID:", docRef.id);
 
         // Reset and close
@@ -205,12 +203,8 @@ onAuthStateChanged(auth, async (user) => {
         userUID = user.uid;
         if (isAuthPage) window.location.href = 'dashboard.html';
 
-        // Sync Expenses
-        const q = query(
-            collection(db, 'expenses'), 
-            where('userId', '==', userUID), 
-            orderBy('createdAt', 'desc')
-        );
+        // Sync Transactions
+        const q = query(collection(db, 'users', userUID, 'transactions'), orderBy('createdAt', 'desc'));
         onSnapshot(q, (snapshot) => {
             transactions = snapshot.docs.map(doc => ({
                 id: doc.id,
@@ -281,9 +275,9 @@ window.saveBudget = saveBudget;
 window.deleteTransaction = async (id) => {
     if (confirm('Delete this transaction?')) {
         try {
-            await deleteDoc(doc(db, 'expenses', id));
+            await deleteDoc(doc(db, 'users', userUID, 'transactions', id));
         } catch (error) {
-            console.error("Error deleting expense: ", error);
+            console.error("Error deleting transaction: ", error);
         }
     }
 };
