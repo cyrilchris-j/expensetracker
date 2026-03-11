@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History | ExpenseTracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .t-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .t-table th {
+            text-align: left;
+            padding: 15px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .t-table td {
+            padding: 18px 15px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .t-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: var(--section-bg);
+            color: var(--text-secondary);
+        }
+
+        .delete-btn {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            padding: 8px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .delete-btn:hover {
+            color: var(--expense-color);
+            background-color: #FEF2F2;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-wallet"></i>
+            <span>ExpenseTracker</span>
+        </div>
+        <nav class="sidebar-menu">
+            <a href="dashboard.html" class="menu-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="menu-item" onclick="openModal('add-modal')">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Expense</span>
+            </a>
+            <a href="transactions.html" class="menu-item active">
+                <i class="fas fa-history"></i>
+                <span>Expense History</span>
+            </a>
+            <a href="analytics.html" class="menu-item">
+                <i class="fas fa-chart-pie"></i>
+                <span>Reports</span>
+            </a>
+            <a href="profile.html" class="menu-item">
+                <i class="fas fa-user-circle"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="page-header">
+            <div class="header-title">
+                <button class="mobile-nav-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Transaction History</h1>
+                <p>Detailed breakdown of your financial activity.</p>
+            </div>
+            <div class="filter-group">
+                <select id="filter-category" class="form-control" style="width: 200px;" onchange="filterTransactions()">
+                    <option value="All">All Categories</option>
+                    <option value="Food">Food & Dining</option>
+                    <option value="Travel">Travel & Transport</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Bills">Bills & Utilities</option>
+                    <option value="Salary">Salary / Income</option>
+                    <option value="Others">Others</option>
+                </select>
+            </div>
+        </header>
+
+        <section class="card">
+            <div style="overflow-x: auto;">
+                <table class="t-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="full-transaction-list">
+                        <!-- Injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Add Transaction Modal (Same as Dashboard) -->
+    <div id="add-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>New Transaction</h3>
+                <button onclick="closeModal('add-modal')"
+                    style="font-size: 1.5rem; color: var(--text-secondary);">&times;</button>
+            </div>
+            <form id="transaction-form" class="form-grid">
+                <div class="form-group full-width">
+                    <label>Description</label>
+                    <input type="text" id="desc" class="form-control" placeholder="e.g. Starbucks Coffee" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount ($)</label>
+                    <input type="number" id="amount" class="form-control" step="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="type" class="form-control">
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category" class="form-control">
+                        <option value="Food">Food & Dining</option>
+                        <option value="Travel">Travel & Transport</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills & Utilities</option>
+                        <option value="Salary">Salary / Income</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="date" class="form-control" required>
+                </div>
+                <div class="form-group full-width">
+                    <button type="button" class="btn btn-primary" onclick="saveTransactionCloud()"
+                        style="width: 100%; justify-content: center; margin-top: 10px;">
+                        Save Transaction
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <script type="module">
+        function renderFullList(data) {
+            const listEl = document.getElementById('full-transaction-list');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+
+            if (data.length === 0) {
+                listEl.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-secondary);">No transactions found.</td></tr>';
+                return;
+            }
+
+            data.forEach(t => {
+                const row = document.createElement('tr');
+                const colorClass = t.amount < 0 ? 'expense-text' : 'income-text';
+                const sign = t.amount < 0 ? '-' : '+';
+
+                row.innerHTML = `
+                    <td style="color: var(--text-secondary); font-size: 0.9rem;">${t.date}</td>
+                    <td style="font-weight: 600;">${t.description}</td>
+                    <td><span class="badge">${t.category}</span></td>
+                    <td class="${colorClass}" style="font-weight: 700;">${sign}$${Math.abs(t.amount).toFixed(2)}</td>
+                    <td style="text-align: right;">
+                        <button class="delete-btn" onclick="window.deleteTransaction('${t.id}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                `;
+                listEl.appendChild(row);
+            });
+        }
+
+        window.renderFullList = renderFullList;
+
+        window.filterTransactions = function () {
+            const cat = document.getElementById('filter-category').value;
+            // Since we can't easily access transactions from here if it's not global,
+            // we let the state change in app.js handle it or fetch again.
+            // For now, let's keep it simple and just filter the current view if data is passed.
+        }
+    </script>
+</body>
+
+</html>

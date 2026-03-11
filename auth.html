@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Sign Up | ExpenseTracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: var(--section-bg);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 450px;
+            padding: 50px 40px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .auth-header h2 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-top: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .auth-footer {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .auth-footer a {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        #signup-form {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="logo" style="justify-content: center; font-size: 2rem;">
+                <i class="fas fa-wallet"></i> ExpenseTracker
+            </div>
+            <h2 id="auth-title">Welcome Back</h2>
+            <p id="auth-subtitle" style="color: var(--text-secondary);">Manage your finances with style.</p>
+        </div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label
+                    style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 8px;">Email
+                    Address</label>
+                <input type="email" id="email" class="form-control" placeholder="alex@example.com" required>
+            </div>
+            <div class="form-group">
+                <label
+                    style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 8px;">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary"
+                style="width: 100%; justify-content: center; padding: 14px;">Log In</button>
+        </form>
+
+        <form id="signup-form">
+            <div class="form-group">
+                <label
+                    style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 8px;">Full
+                    Name</label>
+                <input type="text" id="reg-name" class="form-control" placeholder="Alex Johnson" required>
+            </div>
+            <div class="form-group">
+                <label
+                    style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 8px;">Email
+                    Address</label>
+                <input type="email" id="reg-email" class="form-control" placeholder="alex@example.com" required>
+            </div>
+            <div class="form-group">
+                <label
+                    style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 8px;">Password</label>
+                <input type="password" id="reg-password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary"
+                style="width: 100%; justify-content: center; padding: 14px;">Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+            <p id="toggle-msg">Don't have an account? <a href="#" id="toggle-auth">Sign Up</a></p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from './firebase-config.js';
+        import {
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const toggleBtn = document.getElementById('toggle-auth');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const authTitle = document.getElementById('auth-title');
+        const toggleMsg = document.getElementById('toggle-msg');
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+                authTitle.innerText = 'Welcome Back';
+                toggleMsg.innerHTML = 'Don\'t have an account? <a href="#" id="toggle-auth">Sign Up</a>';
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+                authTitle.innerText = 'Create Account';
+                toggleMsg.innerHTML = 'Already have an account? <a href="#" id="toggle-auth">Log In</a>';
+            }
+            // Re-attach toggle listener since we replaced innerHTML
+            document.getElementById('toggle-auth').addEventListener('click', (ev) => {
+                ev.preventDefault();
+                toggleBtn.click();
+            });
+        });
+
+        const handleLogin = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+
+        const handleSignup = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            // You could also store the name in Firestore or User Profile here if needed
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+
+        loginForm.addEventListener('submit', handleLogin);
+        signupForm.addEventListener('submit', handleSignup);
+    </script>
+</body>
+
+</html>

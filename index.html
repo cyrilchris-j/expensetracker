@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpenseTracker | Master Your Finances</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            display: block;
+            background-color: white;
+        }
+
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            padding: 60px 0;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 25px;
+        }
+
+        .landing-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 0;
+        }
+
+        .feature-grid-l {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 80px 0;
+        }
+
+        .f-card {
+            padding: 40px;
+            border-radius: 24px;
+            background: var(--section-bg);
+            text-align: center;
+        }
+
+        .f-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <nav class="landing-nav">
+            <div class="logo">
+                <i class="fas fa-wallet"></i> ExpenseTracker
+            </div>
+            <div style="display: flex; gap: 20px;">
+                <a href="auth.html" class="btn btn-outline"
+                    style="border: 1.5px solid var(--primary-color); color: var(--primary-color);">Log In</a>
+                <a href="auth.html" class="btn btn-primary">Sign Up</a>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center;">
+                <div class="hero-text">
+                    <span
+                        style="color: var(--primary-color); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Smart
+                        Money Management</span>
+                    <h1>Finance tracking <br>made <span style="color: var(--primary-color);">beautiful.</span></h1>
+                    <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 35px;">Take control of
+                        your daily spending with our modern fintech-inspired dashboard. Simple, secure, and purely pink.
+                    </p>
+                    <a href="auth.html" class="btn btn-primary"
+                        style="padding: 15px 35px; font-size: 1.1rem; border-radius: 15px;">Start Tracking Free</a>
+                </div>
+                <div class="hero-img">
+                    <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                        alt="Finance" style="width: 100%; border-radius: 30px; box-shadow: var(--shadow-lg);">
+                </div>
+            </div>
+        </section>
+
+        <section class="feature-grid-l">
+            <div class="f-card">
+                <div class="f-icon"><i class="fas fa-bolt"></i></div>
+                <h3>Quick Logging</h3>
+                <p style="color: var(--text-secondary);">Add transactions in seconds with our optimized grid layout
+                    forms.</p>
+            </div>
+            <div class="f-card">
+                <div class="f-icon"><i class="fas fa-chart-line"></i></div>
+                <h3>Deep Insights</h3>
+                <p style="color: var(--text-secondary);">Visual reports that help you understand where every dollar
+                    goes.</p>
+            </div>
+            <div class="f-card">
+                <div class="f-icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>Secure Local Storage</h3>
+                <p style="color: var(--text-secondary);">Your financial data stays on your device. We don't store your
+                    secrets.</p>
+            </div>
+        </section>
+    </div>
+
+    <footer
+        style="background-color: var(--section-bg); padding: 60px 0; text-align: center; border-top: 1px solid var(--border-color);">
+        <div class="logo" style="justify-content: center; margin-bottom: 15px;">
+            <i class="fas fa-wallet"></i> ExpenseTracker
+        </div>
+        <p style="color: var(--text-secondary);">&copy; 2026 ExpenseTracker. Crafted with love and pink.</p>
+    </footer>
+
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>

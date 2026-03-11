@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile | ExpenseTracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-wallet"></i>
+            <span>ExpenseTracker</span>
+        </div>
+        <nav class="sidebar-menu">
+            <a href="dashboard.html" class="menu-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="menu-item" onclick="openModal('add-modal')">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Expense</span>
+            </a>
+            <a href="transactions.html" class="menu-item">
+                <i class="fas fa-history"></i>
+                <span>Expense History</span>
+            </a>
+            <a href="analytics.html" class="menu-item">
+                <i class="fas fa-chart-pie"></i>
+                <span>Reports</span>
+            </a>
+            <a href="profile.html" class="menu-item active">
+                <i class="fas fa-user-circle"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="page-header">
+            <div class="header-title">
+                <button class="mobile-nav-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>My Profile</h1>
+                <p>Manage your account settings and preferences.</p>
+            </div>
+        </header>
+
+        <section class="dashboard-grid">
+            <div class="card">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div
+                        style="width: 100px; height: 100px; background-color: var(--primary-light); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 15px;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3 id="profile-name">Alex Johnson</h3>
+                    <p id="profile-email" style="color: var(--text-secondary);">alex.j@example.com</p>
+                </div>
+
+                <form class="form-grid">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" class="form-control" value="Alex">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" class="form-control" value="Johnson">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Email Address</label>
+                        <input type="email" id="profile-email-input" class="form-control" value="alex.j@example.com">
+                    </div>
+                    <div class="form-group full-width">
+                        <button type="button" class="btn btn-primary" style="justify-content: center;">Update
+                            Profile</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>Account Summary</h3>
+                <div style="margin-top: 25px;">
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid var(--border-color);">
+                        <span style="color: var(--text-secondary);">Member Since</span>
+                        <span id="member-since" style="font-weight: 600;">March 2026</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid var(--border-color);">
+                        <span style="color: var(--text-secondary);">Total Transactions</span>
+                        <span id="profile-t-count" style="font-weight: 600;">0</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid var(--border-color);">
+                        <span style="color: var(--text-secondary);">Account Type</span>
+                        <span style="font-weight: 600; color: var(--primary-color);">Premium</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background-color: #FDF2F8; border-radius: 15px;">
+                    <h4 style="color: var(--primary-color); margin-bottom: 10px;">Cloud Sync</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Your data is currently backed up
+                        locally. Upgrade to sync across all devices.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Add Transaction Modal (Same as Dashboard) -->
+    <div id="add-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>New Transaction</h3>
+                <button onclick="closeModal('add-modal')"
+                    style="font-size: 1.5rem; color: var(--text-secondary);">&times;</button>
+            </div>
+            <form id="transaction-form" class="form-grid">
+                <div class="form-group full-width">
+                    <label>Description</label>
+                    <input type="text" id="desc" class="form-control" placeholder="e.g. Starbucks Coffee" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount ($)</label>
+                    <input type="number" id="amount" class="form-control" step="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="type" class="form-control">
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category" class="form-control">
+                        <option value="Food">Food & Dining</option>
+                        <option value="Travel">Travel & Transport</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills & Utilities</option>
+                        <option value="Salary">Salary / Income</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="date" class="form-control" required>
+                </div>
+                <div class="form-group full-width">
+                    <button type="submit" class="btn btn-primary"
+                        style="width: 100%; justify-content: center; margin-top: 10px;">
+                        Save Transaction
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <script type="module">
+        import { auth } from './firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        document.getElementById('date').valueAsDate = new Date();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('profile-email').innerText = user.email;
+                document.getElementById('profile-email-input').value = user.email;
+                document.getElementById('profile-name').innerText = user.displayName || 'User';
+
+                // Member since logic
+                const memberSince = new Date(user.metadata.creationTime);
+                document.getElementById('member-since').innerText = memberSince.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            }
+        });
+
+        // Add a way to update the transaction count when data changes
+        const originalRenderTransactions = window.renderTransactions;
+        window.renderTransactions = function () {
+            // This is called from app.js
+            // We can check if we are on profile page
+            const countEl = document.getElementById('profile-t-count');
+            // Well, transactions is not accessible here easily unless we attach it to window.
+            // Let's assume app.js will handle global count update or we fetch it.
+        };
+    </script>
+</body>
+
+</html>

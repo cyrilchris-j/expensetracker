@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics & Reports | ExpenseTracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-wallet"></i>
+            <span>ExpenseTracker</span>
+        </div>
+        <nav class="sidebar-menu">
+            <a href="dashboard.html" class="menu-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="menu-item" onclick="openModal('add-modal')">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Expense</span>
+            </a>
+            <a href="transactions.html" class="menu-item">
+                <i class="fas fa-history"></i>
+                <span>Expense History</span>
+            </a>
+            <a href="analytics.html" class="menu-item active">
+                <i class="fas fa-chart-pie"></i>
+                <span>Reports</span>
+            </a>
+            <a href="profile.html" class="menu-item">
+                <i class="fas fa-user-circle"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="page-header">
+            <div class="header-title">
+                <button class="mobile-nav-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Financial Analytics</h1>
+                <p>Visual clues to help you save more and spend less.</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline" onclick="openModal('budget-modal')">
+                    <i class="fas fa-cog"></i> Budget Settings
+                </button>
+            </div>
+        </header>
+
+        <section class="dashboard-grid">
+            <div class="card">
+                <h3 style="margin-bottom: 25px;">Expenses by Category</h3>
+                <div style="height: 350px;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 25px;">Income vs Expenses</h3>
+                <div style="height: 350px;">
+                    <canvas id="incomeExpenseChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" style="margin-top: 30px;">
+            <div class="summary-card-inner">
+                <div class="summary-icon icon-pink">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="summary-details">
+                    <p class="label">Auto-generated Insight</p>
+                    <h3 id="insight-text">Crunching numbers for you...</h3>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Budget Settings Modal -->
+    <div id="budget-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Monthly Budget</h3>
+                <button onclick="closeModal('budget-modal')"
+                    style="font-size: 1.5rem; color: var(--text-secondary);">&times;</button>
+            </div>
+            <div class="form-group" style="margin-top: 25px;">
+                <label>Set your spending limit ($)</label>
+                <input type="number" id="new-budget" class="form-control" value="5000">
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 25px; justify-content: center;"
+                onclick="saveBudgetLocal()">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Add Transaction Modal (Same as Dashboard) -->
+    <div id="add-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>New Transaction</h3>
+                <button onclick="closeModal('add-modal')"
+                    style="font-size: 1.5rem; color: var(--text-secondary);">&times;</button>
+            </div>
+            <form id="transaction-form" class="form-grid">
+                <div class="form-group full-width">
+                    <label>Description</label>
+                    <input type="text" id="desc" class="form-control" placeholder="e.g. Starbucks Coffee" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount ($)</label>
+                    <input type="number" id="amount" class="form-control" step="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="type" class="form-control">
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category" class="form-control">
+                        <option value="Food">Food & Dining</option>
+                        <option value="Travel">Travel & Transport</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills & Utilities</option>
+                        <option value="Salary">Salary / Income</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="date" class="form-control" required>
+                </div>
+                <div class="form-group full-width">
+                    <button type="submit" class="btn btn-primary"
+                        style="width: 100%; justify-content: center; margin-top: 10px;">
+                        Save Transaction
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <script type="module">
+        import { db, auth } from './firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        document.getElementById('date').valueAsDate = new Date();
+
+        let categoryChart, incomeExpenseChart;
+
+        function renderCharts(transactions) {
+            // If transactions not passed, it might be called from app.js with global transactions
+            // But since it's a module, we should expect it to be passed or accessible.
+            // In app.js I call window.renderCharts() which doesn't pass data.
+            // Let's fix app.js or make sure data is available.
+
+            // For now, let's assume we use the data passed from app.js
+            if (!transactions) return;
+
+            const categories = {};
+            let income = 0;
+            let expense = 0;
+
+            transactions.forEach(t => {
+                if (t.amount < 0) {
+                    const absAmt = Math.abs(t.amount);
+                    categories[t.category] = (categories[t.category] || 0) + absAmt;
+                    expense += absAmt;
+                } else {
+                    income += t.amount;
+                }
+            });
+
+            // Destroy previous instances if they exist
+            if (categoryChart) categoryChart.destroy();
+            if (incomeExpenseChart) incomeExpenseChart.destroy();
+
+            // Category Pie Chart
+            const ctx1 = document.getElementById('categoryChart').getContext('2d');
+            categoryChart = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categories),
+                    datasets: [{
+                        data: Object.values(categories),
+                        backgroundColor: ['#EC4899', '#F472B6', '#3B82F6', '#10B981', '#F59E0B', '#64748B'],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 25, font: { weight: 'bold' } } }
+                    },
+                    cutout: '75%'
+                }
+            });
+
+            // Income vs Expense Bar Chart
+            const ctx2 = document.getElementById('incomeExpenseChart').getContext('2d');
+            incomeExpenseChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Income', 'Expenses'],
+                    datasets: [{
+                        label: 'Amount ($)',
+                        data: [income, expense],
+                        backgroundColor: ['#BBF7D0', '#FECACA'],
+                        borderColor: ['#10B981', '#EF4444'],
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Insights
+            const insightText = document.getElementById('insight-text');
+            const savings = income - expense;
+            if (income === 0 && expense === 0) {
+                insightText.innerText = "Add transactions to see your financial health summary!";
+            } else if (savings > 0) {
+                insightText.innerHTML = `You saved <span class="income-text">$${savings.toFixed(2)}</span> this month! High-five to your wallet.`;
+            } else {
+                insightText.innerHTML = `You're <span class="expense-text">$${Math.abs(savings).toFixed(2)}</span> in the red this month. Maybe skip the extra shopping?`;
+            }
+        }
+
+        window.renderCharts = renderCharts;
+
+        window.saveBudgetLocal = async function () {
+            const val = document.getElementById('new-budget').value;
+            const success = await window.saveBudget(val);
+            if (success) {
+                window.closeModal('budget-modal');
+                alert('Budget updated in cloud!');
+            }
+        }
+
+        // Initialize view
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Budget will be loaded by app.js and init() will be called.
+                // We don't need to do much here except wait for onSnapshot in app.js
+            }
+        });
+    </script>
+</body>
+
+</html>

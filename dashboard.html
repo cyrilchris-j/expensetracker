@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | ExpenseTracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-wallet"></i>
+            <span>ExpenseTracker</span>
+        </div>
+        <nav class="sidebar-menu">
+            <a href="dashboard.html" class="menu-item active">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="menu-item" onclick="openModal('add-modal')">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Expense</span>
+            </a>
+            <a href="transactions.html" class="menu-item">
+                <i class="fas fa-history"></i>
+                <span>Expense History</span>
+            </a>
+            <a href="analytics.html" class="menu-item">
+                <i class="fas fa-chart-pie"></i>
+                <span>Reports</span>
+            </a>
+            <a href="profile.html" class="menu-item">
+                <i class="fas fa-user-circle"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-wrapper">
+        <header class="page-header">
+            <div class="header-title">
+                <button class="mobile-nav-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Dashboard Overview</h1>
+                <p>Welcome back! Here's what's happening with your money.</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="openModal('add-modal')">
+                    <i class="fas fa-plus"></i> New Transaction
+                </button>
+            </div>
+        </header>
+
+        <section class="summary-grid">
+            <div class="card">
+                <div class="summary-card-inner">
+                    <div class="summary-icon icon-blue">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="summary-details">
+                        <p class="label">Total Balance</p>
+                        <h2 class="value" id="total-balance">$0.00</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="summary-card-inner">
+                    <div class="summary-icon icon-green">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="summary-details">
+                        <p class="label">Total Income</p>
+                        <h2 class="value income-text" id="total-income">$0.00</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="summary-card-inner">
+                    <div class="summary-icon icon-red">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="summary-details">
+                        <p class="label">Total Expenses</p>
+                        <h2 class="value expense-text" id="total-expense">$0.00</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="summary-card-inner">
+                    <div class="summary-icon icon-pink">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="summary-details">
+                        <p class="label">Monthly Budget</p>
+                        <h2 class="value" id="budget-val">$5,000.00</h2>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 25px; align-items: center;">
+                    <h3>Recent Transactions</h3>
+                    <a href="transactions.html"
+                        style="color: var(--primary-color); font-weight: 600; font-size: 0.9rem;">See All</a>
+                </div>
+                <div id="transaction-list">
+                    <!-- Transactions injected by JS -->
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Financial Goal</h3>
+                <div style="margin-top: 30px; text-align: center;">
+                    <div style="position: relative; width: 150px; height: 150px; margin: 0 auto;">
+                        <!-- Simplified progress circular indicator -->
+                        <div style="width: 100%; height: 100%; border-radius: 50%; border: 12px solid #F1F5F9;"></div>
+                        <div
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; border: 12px solid var(--primary-color); border-top-color: transparent; border-right-color: transparent; transform: rotate(45deg);">
+                        </div>
+                        <div
+                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                            <span style="font-size: 1.8rem; font-weight: 700;">45%</span>
+                            <p style="font-size: 0.75rem; color: var(--text-secondary);">Savings</p>
+                        </div>
+                    </div>
+                    <p style="margin-top: 25px; font-size: 0.9rem; color: var(--text-secondary);">You're on track to
+                        save <span style="font-weight: 600; color: var(--text-primary);">$1,200</span> more this month!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Transaction Modal -->
+    <div id="add-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>New Transaction</h3>
+                <button onclick="closeModal('add-modal')"
+                    style="font-size: 1.5rem; color: var(--text-secondary);">&times;</button>
+            </div>
+            <form id="transaction-form" class="form-grid">
+                <div class="form-group full-width">
+                    <label>Description</label>
+                    <input type="text" id="desc" class="form-control" placeholder="e.g. Starbucks Coffee" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount ($)</label>
+                    <input type="number" id="amount" class="form-control" step="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="type" class="form-control">
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category" class="form-control">
+                        <option value="Food">Food & Dining</option>
+                        <option value="Travel">Travel & Transport</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills & Utilities</option>
+                        <option value="Salary">Salary / Income</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="date" class="form-control" required>
+                </div>
+                <div class="form-group full-width">
+                    <button type="button" class="btn btn-primary" onclick="saveTransactionCloud()"
+                        style="width: 100%; justify-content: center; margin-top: 10px;">
+                        Save Transaction
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <script>
+        // Set today's date in form
+        document.getElementById('date').valueAsDate = new Date();
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+    </script>
+</body>
+
+</html>
