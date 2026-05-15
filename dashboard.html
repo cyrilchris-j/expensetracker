@@ -7,6 +7,14 @@
     <title>Dashboard | ExpenseTracker</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#EC4899">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ExpenseTracker">
+    <link rel="apple-touch-icon" href="app_icon.png">
 </head>
 
 <body>
@@ -39,6 +47,10 @@
             </a>
         </nav>
         <div class="sidebar-footer">
+            <button id="install-btn" class="install-btn">
+                <i class="fas fa-download"></i>
+                <span>Install App</span>
+            </button>
             <button class="logout-btn" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
@@ -56,12 +68,20 @@
                 <h1>Dashboard Overview</h1>
                 <p>Welcome back! Here's what's happening with your money.</p>
             </div>
-            <div class="header-actions">
-                <button class="btn btn-primary" onclick="openModal('add-modal')">
-                    <i class="fas fa-plus"></i> New Transaction
+        </header>
+
+        <div class="mode-selector-row">
+            <div class="mode-tabs">
+
+                <button class="mode-tab active" data-mode="monthly" onclick="setMode('monthly')">
+                    <i class="fas fa-calendar-alt"></i> Monthly
                 </button>
             </div>
-        </header>
+            <span id="date-display"></span>
+            <button class="btn btn-primary" onclick="openModal('add-modal')">
+                <i class="fas fa-plus"></i> New Transaction
+            </button>
+        </div>
 
         <section class="summary-grid">
             <div class="card">
@@ -195,6 +215,7 @@
     </div>
 
     <script type="module" src="app.js"></script>
+    <script src="pwa.js"></script>
     <script>
         // Set today's date in form
         document.getElementById('date').valueAsDate = new Date();
@@ -202,6 +223,47 @@
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
         }
+
+        // Inline fallback for tab switching & date display
+        // (app.js overrides window.setMode with the full version when it loads)
+        (function () {
+            const MONTHS_FULL = ['January','February','March','April','May','June',
+                                 'July','August','September','October','November','December'];
+            const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun',
+                                  'Jul','Aug','Sep','Oct','Nov','Dec'];
+
+            function updateDateDisplay(mode) {
+                const el = document.getElementById('date-display');
+                if (!el) return;
+                const now = new Date();
+                let text = '';
+                if (mode === 'daily') {
+                    text = MONTHS_FULL[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+                } else if (mode === 'weekly') {
+                    const day = now.getDay();
+                    const diffToMon = (day === 0 ? -6 : 1 - day);
+                    const mon = new Date(now); mon.setDate(now.getDate() + diffToMon);
+                    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+                    text = MONTHS_SHORT[mon.getMonth()] + ' ' + mon.getDate()
+                         + ' \u2013 '
+                         + MONTHS_SHORT[sun.getMonth()] + ' ' + sun.getDate()
+                         + ', ' + sun.getFullYear();
+                } else {
+                    text = MONTHS_FULL[now.getMonth()] + ' ' + now.getFullYear();
+                }
+                el.textContent = text;
+            }
+
+            window.setMode = window.setMode || function (mode) {
+                document.querySelectorAll('.mode-tab').forEach(function (btn) {
+                    btn.classList.toggle('active', btn.dataset.mode === mode);
+                });
+                updateDateDisplay(mode);
+            };
+
+            // Initialize date display
+            updateDateDisplay('monthly');
+        })();
     </script>
 </body>
 

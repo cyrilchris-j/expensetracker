@@ -7,6 +7,14 @@
     <title>Transaction History | ExpenseTracker</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#EC4899">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ExpenseTracker">
+    <link rel="apple-touch-icon" href="app_icon.png">
     <style>
         .t-table {
             width: 100%;
@@ -92,6 +100,10 @@
             </a>
         </nav>
         <div class="sidebar-footer">
+            <button id="install-btn" class="install-btn">
+                <i class="fas fa-download"></i>
+                <span>Install App</span>
+            </button>
             <button class="logout-btn" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
@@ -108,18 +120,28 @@
                 <h1>Transaction History</h1>
                 <p>Detailed breakdown of your financial activity.</p>
             </div>
+        </header>
+
+        <div class="mode-selector-row">
+            <div class="mode-tabs">
+
+                <button class="mode-tab active" data-mode="monthly" onclick="setMode('monthly')">
+                    <i class="fas fa-calendar-alt"></i> Monthly
+                </button>
+            </div>
+            <span id="date-display"></span>
             <div class="filter-group">
                 <select id="filter-category" class="form-control" style="width: 200px;" onchange="filterTransactions()">
                     <option value="All">All Categories</option>
-                    <option value="Food">Food & Dining</option>
-                    <option value="Travel">Travel & Transport</option>
+                    <option value="Food">Food &amp; Dining</option>
+                    <option value="Travel">Travel &amp; Transport</option>
                     <option value="Shopping">Shopping</option>
-                    <option value="Bills">Bills & Utilities</option>
+                    <option value="Bills">Bills &amp; Utilities</option>
                     <option value="Salary">Salary / Income</option>
                     <option value="Others">Others</option>
                 </select>
             </div>
-        </header>
+        </div>
 
         <section class="card">
             <div style="overflow-x: auto;">
@@ -191,18 +213,67 @@
     </div>
 
     <script type="module" src="app.js"></script>
+    <script src="pwa.js"></script>
     <script type="module">
+        // Store all transactions received from app.js
+        let allTransactions = [];
+
+        // Date range helpers (same logic as app.js)
+        function getDateRange(mode) {
+            const now = new Date();
+            let start, end;
+            if (mode === 'daily') {
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+            } else if (mode === 'weekly') {
+                const day = now.getDay();
+                const diffToMon = (day === 0 ? -6 : 1 - day);
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMon);
+                end = new Date(start);
+                end.setDate(start.getDate() + 6);
+                end.setHours(23, 59, 59, 999);
+            } else {
+                start = new Date(now.getFullYear(), now.getMonth(), 1);
+                end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+            }
+            return { start, end };
+        }
+
+        function filterByMode(data) {
+            const mode = localStorage.getItem('expenseTrackerMode') || 'monthly';
+            const { start, end } = getDateRange(mode);
+            return data.filter(t => {
+                const d = new Date(t.date);
+                if (isNaN(d)) return false;
+                return d >= start && d <= end;
+            });
+        }
+
         function renderFullList(data) {
+            allTransactions = data;
             const listEl = document.getElementById('full-transaction-list');
             if (!listEl) return;
             listEl.innerHTML = '';
 
-            if (data.length === 0) {
-                listEl.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-secondary);">No transactions found.</td></tr>';
+            // Filter by mode
+            let filtered = filterByMode(data);
+
+            // Filter by category
+            const catFilter = document.getElementById('filter-category');
+            const cat = catFilter ? catFilter.value : 'All';
+            if (cat !== 'All') {
+                filtered = filtered.filter(t => t.category === cat);
+            }
+
+            const mode = localStorage.getItem('expenseTrackerMode') || 'daily';
+            const modeLabel = mode.charAt(0).toUpperCase() + mode.slice(1);
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-secondary);">No ${modeLabel.toLowerCase()} transactions found.</td></tr>`;
                 return;
             }
 
-            data.forEach(t => {
+            filtered.forEach(t => {
                 const row = document.createElement('tr');
                 const colorClass = t.amount < 0 ? 'expense-text' : 'income-text';
                 const sign = t.amount < 0 ? '-' : '+';
@@ -225,10 +296,58 @@
         window.renderFullList = renderFullList;
 
         window.filterTransactions = function () {
-            const cat = document.getElementById('filter-category').value;
-            // Since we can't easily access transactions from here if it's not global,
-            // we let the state change in app.js handle it or fetch again.
-            // For now, let's keep it simple and just filter the current view if data is passed.
+            renderFullList(allTransactions);
+        }
+    </script>
+    <script>
+        // Inline fallback for tab switching & date display
+        (function () {
+            const MONTHS_FULL = ['January','February','March','April','May','June',
+                                 'July','August','September','October','November','December'];
+            const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun',
+                                  'Jul','Aug','Sep','Oct','Nov','Dec'];
+
+            function updateDateDisplay(mode) {
+                const el = document.getElementById('date-display');
+                if (!el) return;
+                const now = new Date();
+                let text = '';
+                if (mode === 'daily') {
+                    text = MONTHS_FULL[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+                } else if (mode === 'weekly') {
+                    const day = now.getDay();
+                    const diffToMon = (day === 0 ? -6 : 1 - day);
+                    const mon = new Date(now); mon.setDate(now.getDate() + diffToMon);
+                    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+                    text = MONTHS_SHORT[mon.getMonth()] + ' ' + mon.getDate()
+                         + ' \u2013 '
+                         + MONTHS_SHORT[sun.getMonth()] + ' ' + sun.getDate()
+                         + ', ' + sun.getFullYear();
+                } else {
+                    text = MONTHS_FULL[now.getMonth()] + ' ' + now.getFullYear();
+                }
+                el.textContent = text;
+            }
+
+            // Tab switching (fallback — app.js overrides window.setMode when loaded)
+            window.setMode = window.setMode || function (mode) {
+                localStorage.setItem('expenseTrackerMode', mode);
+                document.querySelectorAll('.mode-tab').forEach(function (btn) {
+                    btn.classList.toggle('active', btn.dataset.mode === mode);
+                });
+                updateDateDisplay(mode);
+            };
+
+            // Initialize: restore saved mode
+            var savedMode = localStorage.getItem('expenseTrackerMode') || 'monthly';
+            document.querySelectorAll('.mode-tab').forEach(function (btn) {
+                btn.classList.toggle('active', btn.dataset.mode === savedMode);
+            });
+            updateDateDisplay(savedMode);
+        })();
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
         }
     </script>
 </body>

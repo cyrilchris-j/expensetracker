@@ -1,0 +1,17 @@
+{
+  "name": "ExpenseTracker",
+  "short_name": "ExpenseTracker",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#EC4899",
+  "description": "Master your finances with our modern fintech-inspired expense tracker.",
+  "icons": [
+    {
+      "src": "app_icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

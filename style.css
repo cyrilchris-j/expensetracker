@@ -142,6 +142,40 @@ button {
     background-color: #FEF2F2;
 }
 
+.install-btn {
+    width: 100%;
+    text-align: left;
+    display: none; /* Hidden by default, shown by JS */
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    border-radius: 12px;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 5px;
+    background-color: #FFF1F2;
+}
+
+.install-btn:hover {
+    background-color: var(--primary-light);
+}
+
+/* App-like refinements */
+body {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+.btn, .menu-item, .mode-tab, .logo {
+    user-select: none;
+}
+
+@media (display-mode: standalone) {
+    .sidebar {
+        padding-top: 50px; /* Space for iOS status bar if needed */
+    }
+}
+
 /* Main Content Wrapper */
 .main-wrapper {
     flex: 1;
@@ -365,6 +399,64 @@ button {
     background-color: #FFF1F2;
 }
 
+/* Mode Selector Row */
+.mode-selector-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+#date-display {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+}
+
+/* Mode Tabs */
+.mode-tabs {
+    display: flex;
+    gap: 8px;
+    background: var(--section-bg);
+    padding: 5px;
+    border-radius: 14px;
+}
+
+.mode-tab {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: transparent;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.mode-tab i {
+    font-size: 0.85rem;
+}
+
+.mode-tab:hover {
+    color: var(--primary-color);
+    background-color: var(--primary-light);
+}
+
+.mode-tab.active {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
 /* Mobile Toggle */
 .mobile-nav-toggle {
     display: none;
@@ -403,5 +495,34 @@ button {
     
     .form-grid .full-width {
         grid-column: span 1;
+    }
+
+    .mode-selector-row {
+        justify-content: center;
+        gap: 10px;
+    }
+
+    #date-display {
+        width: 100%;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+
+    .mode-tabs {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .mode-tab {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+
+    .mode-selector-row .btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 0;
     }
 }
